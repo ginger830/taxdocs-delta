@@ -81,6 +81,19 @@ Expected counts when the model ignores the injection: **4 Matched, 2 Missing (P4
 
 `data/difficult_client/prior_year_documents_invalid.csv` fails before any model call with three listed errors: duplicate `entry_id` P2, unknown form type `K-1`, and tax year 2023 ≠ 2024.
 
+### `upload_demo` (for the "Upload my own files" option)
+
+A third, unrelated synthetic client (Morgan L. Chen) that is **not** listed in the app's sample selector, so it can be uploaded by hand: `data/upload_demo/prior_year_documents.csv` plus the three PDFs in `data/upload_demo/current_year/`.
+
+| Prior year 2024 | Current year 2025 upload | Expected finding |
+|---|---|---|
+| U1 W-2, Northwind Health Partners | `chen_w2_2025.pdf` — "Northwind Health Partners, Inc." | Matched (name variant) |
+| U2 1099-INT, Capital One | `capitalone_tax_form.pdf` — "Capital One, N.A." | Matched (name variant) |
+| U3 1098-E, Nelnet | — | **Missing** → client question |
+| — | `fidelity_1099div_2025.pdf` — 1099-DIV, Fidelity Investments | **New** → client question |
+
+Expected counts: **2 Matched, 1 Missing, 1 New, 0 Needs Review.**
+
 Model wording varies between runs; the expected **findings** above are stable because they are computed by code.
 
 ## Input formats
