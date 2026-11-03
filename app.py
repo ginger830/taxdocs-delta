@@ -230,7 +230,7 @@ for f in findings:
                          placeholder="No AI draft — type a question if you want to ask the client.")
             ai = ai_questions.get(f.finding_id)
             if ai and st.session_state[qkey] != ai:
-                st.caption(f"AI draft: {esc(ai)}")
+                st.caption(f"Original AI draft (kept in the checklist; the text in the box above is what gets exported): {esc(ai)}")
     decisions[f.finding_id] = Decision(status=ReviewerStatus(st.session_state[skey]),
                                        final_question=st.session_state.get(qkey, d.final_question))
 
@@ -239,7 +239,8 @@ for f in findings:
 st.divider()
 st.header("Export")
 reviewed = sum(d.status is not ReviewerStatus.PENDING for d in decisions.values())
-st.caption(f"{reviewed} of {len(findings)} findings reviewed. Nothing is sent to the client automatically.")
+st.caption(f"{reviewed} of {len(findings)} findings reviewed. Nothing is sent to the client automatically. "
+           "Exports use the question text as saved (press ⌘/Ctrl+Enter or click outside a box to save an edit).")
 request_text = client_request_text(findings, decisions, current_year)
 empty_asks = [f.finding_id for f, q in ask_client_items(findings, decisions) if not q]
 if empty_asks:
