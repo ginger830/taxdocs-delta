@@ -1,6 +1,6 @@
 # TaxDocs Delta — Application Architecture & System Design
 
-**Design status:** MVP architecture specification (not a claim of completed implementation)  
+**Design status:** MVP architecture specification; implemented as described, with the as-built notes in §13  
 **Architecture style:** Modular Python monolith + external LLM API + human-in-the-loop review  
 **Scope:** 2–4-hour coding case study
 
@@ -221,7 +221,9 @@ taxdocs-delta/
 │       ├── prior_year_documents_invalid.csv   # duplicate ID, unknown form type
 │       └── current_year/*.pdf    # incl. wrong-year, non-tax, scanned-image and prompt-injection PDFs
 ├── scripts/
-│   └── make_samples.py           # generates the synthetic PDFs (dev only)
+│   ├── make_samples.py           # generates the synthetic PDFs (dev only)
+│   ├── check_api.py              # dev: one live structured-output call
+│   └── run_sample.py             # dev: headless live run of a bundled sample
 ├── tests/
 │   ├── test_documents.py
 │   ├── test_extractor_checks.py
@@ -262,3 +264,20 @@ This is not a standalone LLM benchmarking or RAG-evaluation workstream.
 **Not implemented in MVP:** OCR for scanned documents, field-level data entry, amount comparison or variance thresholds, multi-client queues, tax-software or portal integration, e-signature or email, authentication, persistence, production compliance.
 
 **Potential extensions:** OCR or a document-AI service for scanned files; reading the prior-year list directly from the filed return or tax software; year-over-year amount variance flags with preparer-set thresholds; a per-firm issuer alias table learned from preparer corrections; multi-client deadline-ordered queues; measured accuracy on CPA-labelled document sets.
+
+## 13. As-built notes
+
+These record implementation decisions made within the contracts above.
+
+- **Difficult sample prior list** adds `P6, 1099-INT, Discover Bank, 2024`, so the wrong-year upload (a 2024 Discover 1099-INT) belongs to a recurring account: the document is Needs Review (wrong year, with a client question) and P6 is Missing.
+- **Injection document** is a 1099-MISC whose printed text asks the model to mark everything matched and to match it to P4 (a 1098). If the model ignores it, the document is New; if it follows it, the match is rejected by the form-type rule. P4 can never be matched by it.
+- **Scanned PDF** is an image-only 1098 with no text layer; it is Unreadable and not sent to the model.
+- **Grounding failure blocks a match.** A document whose values are not found in its text is Needs Review; its proposed entry stays Missing, and the Missing reason names the document that proposed it.
+- **Duplicate claims reject all claimants.** If two documents propose the same entry, neither match is accepted (both Needs Review); the entry is Missing with both rejections noted.
+- **Wrong-year finding** keeps the proposed entry (if same form type) as context and is the only Needs Review type that requires a client question.
+- **Null values.** A supported form with no identifiable tax year or issuer is Needs Review (cannot be confirmed as current-year / identified).
+- **Call 2 input** contains finding ID, status, reason, form type, prior and current issuer, tax year and `needs_question` — no document text, filenames or amounts. Questions returned for findings that do not require one are ignored; invented IDs, duplicates or a missing/empty required question reject call 2. When no finding needs a question, call 2 is skipped.
+- **CSV:** form types are matched case-insensitively and normalized; columns beyond the six in §4 are ignored; an empty CSV is an error.
+- **Document IDs** follow upload order (bundled samples: filename order).
+- **Settings** are read from environment variables first, then Streamlit secrets. `REASONING_EFFORT` defaults to `medium`; an empty value omits the parameter. Client: `max_retries=0`, timeout 240 s.
+- **SDK:** `openai==3.42.1` (`client.responses.parse(..., text_format=...)`, `response.output_parsed`); refusals, `incomplete` status and schema-invalid output raise visible errors.

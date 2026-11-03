@@ -2,7 +2,7 @@
 
 **Project:** AI-assisted year-over-year tax document check for CPA firms  
 **Context:** MiraFlores AI — AI Engineer (Tax) take-home case study  
-**Stage:** MVP specification, pre-implementation  
+**Stage:** MVP implemented (see README status table for verified items)  
 **Total effort limit:** **2–4 hours, with a hard stop at four hours**, including all requested materials
 
 ## 1. Project objective and business case
@@ -196,4 +196,4 @@ If time is short, cut visual polish and the call-2 summary paragraph first; keep
 - Streamlit secrets management: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management
 - OpenAI Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
 
-**Status:** Planning document. No claim is made here that the live app, test run, written submission or walkthrough has been completed.
+**Status:** Planning document, kept as the original plan. Verified build status (tests, live runs, deployment, video) is tracked in the README status table.
