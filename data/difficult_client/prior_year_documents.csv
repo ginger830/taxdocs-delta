@@ -1,0 +1,7 @@
+entry_id,form_type,issuer_name,tax_year,key_amount,notes
+P1,W-2,ABC Design Co.,2024,85000.00,
+P2,1099-INT,Ally Bank,2024,300.00,
+P3,1099-INT,Chase,2024,45.00,
+P4,1098,Rocket Mortgage,2024,9200.00,
+P5,1099-DIV,Vanguard,2024,640.00,
+P6,1099-INT,Discover Bank,2024,95.00,Online savings
