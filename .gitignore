@@ -179,3 +179,16 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+# --- TaxDocs Delta project rules ---
+# Secrets (local and Streamlit Cloud); the .example file is committed
+.streamlit/secrets.toml
+.env.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Never commit real taxpayer documents; synthetic samples live in data/
+uploads/
+private_data/
