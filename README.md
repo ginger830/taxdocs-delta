@@ -153,7 +153,7 @@ python scripts/make_samples.py
 python -m pytest -q
 ```
 
-Tests use a fake OpenAI client for both calls (no network). Observed result: **50 passed** (Python 3.10 build sandbox, same pinned packages). _Re-run on Python 3.12: pending._
+Tests use a fake OpenAI client for both calls (no network). Observed result: **51 passed** (Python 3.10 build sandbox, same pinned packages). On macOS Python 3.12 the suite passed (50/50) before the upload-demo test was added; _re-run of the current 51: pending._
 
 ## Configuration and failure behavior
 
@@ -186,7 +186,7 @@ Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: 
 | Item | Status |
 |---|---|
 | Input validation, call 1 + checks, comparison, call 2 + checks, review UI, exports | Implemented |
-| Pytest suite | 50 passed (fake client) |
+| Pytest suite | 51 passed (fake client) |
 | Live run of both samples with a real model | _Pending — to be recorded here_ |
 | Public Streamlit Community Cloud deployment | _Pending_ |
 | Video walkthrough | _Pending (script in docs/walkthrough_script.md)_ |

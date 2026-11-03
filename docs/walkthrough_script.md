@@ -50,7 +50,7 @@
 
 ### 5:30–6:40 · Architecture, limits, next steps
 
-1. Show the module list in the README: documents → extractor → compare → questions → review; `app.py` is UI only; 50 tests with a fake model client.
+1. Show the module list in the README: documents → extractor → compare → questions → review; `app.py` is UI only; 51 tests with a fake model client.
 2. Limits: synthetic data, text PDFs only, no amount comparison, a passed check isn't proof — the preparer reviews everything.
 3. Next: read the prior-year list from last year's return, amount-variance flags, a firm alias table from corrections, OCR, multi-client queue.
 4. What would stop me: firms already have reliable missing-document detection, preparers spend little time here, errors force full re-checks, or most uploads are scans.
