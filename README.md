@@ -94,7 +94,7 @@ Model wording varies between runs; the expected **findings** above are stable be
 ```bash
 git clone https://github.com/ginger830/taxdocs-delta.git
 cd taxdocs-delta
-python3.12 -m venv .venv
+python3.12 -m venv .venv --prompt taxdocs     # shell prompt shows (taxdocs)
 source .venv/bin/activate
 python -m pip install -r requirements.txt        # add requirements-dev.txt to regenerate samples
 ```
@@ -108,11 +108,13 @@ export MODEL_NAME=gpt-5.2          # default gpt-5.2
 export REASONING_EFFORT=medium     # default medium; none|low|medium|high; empty = not sent
 ```
 
-or copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` (Git-ignored) and fill it in.
+If you use conda, run `conda deactivate` first (or at least launch everything with `python -m ...`) so the venv's Python, not conda's, is used.
+
+Or copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml` (Git-ignored) and fill it in.
 
 ```bash
 python scripts/check_api.py        # one live Structured Outputs call with the configured model
-streamlit run app.py               # open http://localhost:8501
+python -m streamlit run app.py     # open http://localhost:8501
 ```
 
 In the app: choose `Sample: sample_client` (default) → **Check Documents** → review each finding (status + question) → download the checklist CSV and client request list.
