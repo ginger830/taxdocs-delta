@@ -65,12 +65,12 @@ Prior-year document list (CSV) + current-year PDFs (1–15)
         - client request list (text) from Ask Client items
 ```
 
-**Runtime deployment:** A single Streamlit app on Streamlit Community Cloud, connected to a GitHub repository. API credentials are supplied server-side through secrets. No independent backend service and no database.
+**Runtime deployment:** A single Streamlit app running as a Render web service, connected to the GitHub repository. API credentials are supplied server-side through environment variables. No independent backend service and no database.
 
 ## 3. User interaction sequence
 
-1. The preparer opens the app; a synthetic sample client (prior-year list + current-year PDFs) is available by default, plus a second sample with difficult inputs.
-2. The preparer may instead upload a prior-year CSV and current-year PDFs.
+1. The preparer opens the app and uploads a prior-year CSV and current-year PDFs (the synthetic samples in `data/` are uploaded the same way).
+2. The preparer sets the current tax year (default 2025).
 3. CSV validation and PDF text extraction run **before** any API request. Invalid CSVs block the run with an actionable message; unreadable PDFs are listed as Needs Review and excluded from the model call.
 4. A deliberate **Check Documents** click runs LLM call 1 on all readable documents.
 5. Readings are validated and grounded; proposed matches are accepted or rejected by rule.
@@ -231,9 +231,7 @@ taxdocs-delta/
 │   └── test_review.py
 ├── docs/
 │   ├── architecture.md
-│   ├── roadmap.md
-│   ├── case_study.md             # final written submission, <= 4 pages
-│   └── walkthrough_script.md     # 5–10-minute video outline/script
+│   └── roadmap.md
 ├── requirements.txt
 ├── requirements-dev.txt          # reportlab for sample generation
 ├── .gitignore
@@ -242,9 +240,9 @@ taxdocs-delta/
 
 ## 10. Deployment and security model
 
-- Single Streamlit Community Cloud deployment from GitHub; entry point `app.py`.
+- Single Render web service deployed from GitHub; entry point `app.py` (`streamlit run app.py --server.port $PORT --server.address 0.0.0.0`).
 - Python dependencies pinned to a verified installation set.
-- `OPENAI_API_KEY` (and `MODEL_NAME`, optional `REASONING_EFFORT`) in Streamlit Cloud secrets / local environment. `.env`, `.streamlit/secrets.toml`, `.venv` and caches are Git-ignored.
+- `OPENAI_API_KEY` (and `MODEL_NAME`, optional `REASONING_EFFORT`) in Render environment variables / local environment or `.streamlit/secrets.toml`. The key's OpenAI project has a hard monthly spend limit. `.env`, `.streamlit/secrets.toml`, `.venv` and caches are Git-ignored.
 - Requests use `store=False`. The public demo is for **synthetic** documents only; a visible notice tells users not to upload real tax documents.
 - No database or persistent storage; uploaded files live only in the session.
 
@@ -263,7 +261,7 @@ This is not a standalone LLM benchmarking or RAG-evaluation workstream.
 
 **Not implemented in MVP:** OCR for scanned documents, field-level data entry, amount comparison or variance thresholds, multi-client queues, tax-software or portal integration, e-signature or email, authentication, persistence, production compliance.
 
-**Potential extensions:** OCR or a document-AI service for scanned files; reading the prior-year list directly from the filed return or tax software; year-over-year amount variance flags with preparer-set thresholds; a per-firm issuer alias table learned from preparer corrections; multi-client deadline-ordered queues; measured accuracy on CPA-labelled document sets.
+**Potential extensions:** OCR or a document-AI service for scanned files; importing last year's document list from the firm's tax software instead of a hand-made CSV; year-over-year amount variance flags with preparer-set thresholds; a per-firm issuer alias table learned from preparer corrections; multi-client deadline-ordered queues; measured accuracy on CPA-labelled document sets.
 
 ## 13. As-built notes
 
@@ -282,3 +280,4 @@ These record implementation decisions made within the contracts above.
 - **Document IDs** follow upload order (headless runner and tests: filename order).
 - **Settings** are read from environment variables first, then Streamlit secrets. `REASONING_EFFORT` defaults to `medium`; an empty value omits the parameter. Client: `max_retries=0`, timeout 240 s.
 - **SDK:** `openai==3.42.1` (`client.responses.parse(..., text_format=...)`, `response.output_parsed`); refusals, `incomplete` status and schema-invalid output raise visible errors.
+- **Hosting:** first deployed on Streamlit Community Cloud, where the app's front-end files intermittently failed to load in the browser; moved to Render, which serves the app directly. `streamlit` is pinned to 1.50.0. The free Render instance sleeps after 15 minutes without traffic; the first request after that takes about a minute.

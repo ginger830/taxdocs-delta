@@ -1,15 +1,15 @@
 # TaxDocs Delta — Product Roadmap & Case-Study Plan
 
-**Project:** AI-assisted year-over-year tax document check for CPA firms  
-**Context:** MiraFlores AI — AI Engineer (Tax) take-home case study  
+**Project:** AI-assisted tax document check for CPA firms  
+**Context:** AI Engineer (Tax) take-home case study  
 **Stage:** MVP implemented (see README status table for verified items)  
-**Total effort limit:** **2–4 hours, with a hard stop at four hours**, including all requested materials
+
 
 ## 1. Project objective and business case
 
 ### Users and workflow
 
-MiraFlores builds AI-supported tax workflows for CPA firms. The direct user of this prototype is a **tax preparer**, not the taxpayer. Each season the firm collects tax documents from clients it served the year before. Before preparing a return, the preparer has to establish whether the client's document set is complete: every recurring document from last year should be accounted for, new documents may signal new income or a life change, and some uploads are unusable (wrong year, not a tax form, unreadable scan).
+The direct user of this prototype is a **tax preparer**, not the taxpayer. Each season the firm collects tax documents from some recurring clients it had served before. Before preparing a return, the preparer has to establish whether the client's document set is complete: every recurring document from last year should be accounted for, new documents may signal new income or a life change, and some uploads are unusable (wrong year, not a tax form, unreadable scan).
 
 **Problem:** Checking each client's uploads against last year's documents is repetitive manual work. Documents arrive in many layouts, issuers appear under different names, and most of a client's documents are unchanged, so the preparer spends time confirming sameness in order to find the few differences that matter.
 
@@ -32,11 +32,11 @@ The brief asks for **three candidate problems**, where each was encountered, who
 
 | Candidate problem | Where encountered / basis | Who is affected / what happens | Decision |
 |---|---|---|---|
-| **Finding what changed between this year's and last year's document set (selected)** | Personal: when renewing an apartment lease, I used AI to compare the new contract with the old one so I did not have to reread pages of identical clauses and disclosures to find the few changes. Work: reconciling historical records and investigating whether differences were errors or legitimate changes. *[Author to confirm wording.]* | Tax preparers re-checking recurring clients' documents each season; missed or late documents delay returns and cause extra follow-up. | **Selected.** Recurs for every client every season; clear input → output; AI is needed for reading varied documents, code for exact comparison; demonstrable in four hours. |
-| Uncategorized self-employed expenses | Prior financial-analysis and data-quality work classifying inconsistent transaction records. *[Author to confirm.]* | Preparers sorting mixed personal/business card transactions for Schedule C. | Not selected. Bank and card lines rarely say what was bought or why, so many items still need the client regardless of tooling; clients with separate business accounts are already served by bookkeeping software. |
-| Interpreting and reconciling IRS notices | Assumption based on how clients forward IRS letters to their preparer. *[Author to confirm whether there is direct exposure.]* | Preparers responding to notices about mismatched income or balances. | Not selected. Valuable, but less frequent per client, and a credible version needs the firm's filed-return data to check whether the IRS is right. |
+| **Checking whether recurring clients' tax documents are complete (selected)** | Work: in a finance department I saw people spend a lot of time manually checking whether document packages were complete (reimbursements, audit preparation). Personal: comparing my old and new apartment leases with AI showed how well AI finds the few differences between long, mostly identical documents. | Tax preparers re-checking recurring clients' documents each season; missed or late documents delay returns and cause extra follow-up. | **Selected.** Recurs for every client every season; last year's list is a natural baseline; AI is needed for reading varied documents, code for exact comparison; demonstrable within the time limit. |
+| Reviewing expense reimbursement packages | Observed in the same finance department. | Finance staff approving claims and employees waiting to be reimbursed; claims bounce back and forth over missing receipts or policy issues. | Not selected. Already well served by expense-management software that captures receipts and applies policy rules. |
+| Spotting changed terms in contract renewals | My own apartment lease renewal. | Renters and small businesses renewing leases or service contracts; changed fees or terms go unnoticed. | Not selected. An occasional, individual task that general-purpose AI assistants already handle reasonably well, and it edges toward legal advice. |
 
-**Observed:** Recurring document sets are mostly identical year to year, and finding the few real differences by rereading is slow (lease comparison). Data differences require investigation to tell errors from legitimate changes. Commercial tax-document platforms advertise missing-document identification, which indicates firms pay to solve this.  
+**Observed:** Manually checking document packages for completeness takes real time (finance department). AI reliably finds the few changes between long, similar documents (lease comparison). Commercial tax-document platforms advertise missing-document identification, which indicates firms pay to solve this.  
 **Assumed:** Many CPA firms, especially smaller ones, still check client uploads against prior-year lists largely by hand; issuer-name variation and unusable uploads are common enough to matter; drafted client questions save follow-up time.
 
 ## 3. Alternative approaches and choice
@@ -55,7 +55,7 @@ The brief asks for **three candidate problems**, where each was encountered, who
 
 ### Single end-to-end workflow
 
-1. Load the synthetic sample client (prior-year CSV + current-year PDFs) or upload equivalents.
+1. Upload the prior-year CSV and current-year PDFs (synthetic samples in `data/`).
 2. Validate the CSV and extract text from each PDF; flag unreadable files before any model call.
 3. **LLM call 1:** read every readable document into a fixed schema and propose prior-year matches.
 4. Verify readings against document text; accept or reject matches by rule.
@@ -93,11 +93,11 @@ Amount comparison or variance thresholds. Amounts are extracted and shown for re
 
 ### Included
 
-- One-page Streamlit UI with bundled synthetic samples and upload.
+- One-page Streamlit UI with file upload (synthetic samples provided in `data/`).
 - Prior-year CSV validation; 1–15 text-based PDFs per run.
 - Two LLM calls with Pydantic Structured Outputs; grounding and match-rule checks in code.
 - Deterministic findings; editable drafted client questions; reviewer statuses; exports.
-- Focused Pytest tests; public Streamlit Community Cloud demo; README, written submission, video.
+- Focused Pytest tests; public demo (deployed on Render); README, written submission, video.
 
 ### Not included
 
@@ -113,11 +113,11 @@ Amount comparison or variance thresholds. Amounts are extracted and shown for re
 - **Streamlit:** inputs, Check Documents action, findings review, downloads.
 - **pypdf:** text extraction; readability check.
 - **Pydantic:** form-type enum, reading and question schemas.
-- **OpenAI Python SDK + Responses API:** two structured calls per run, configurable by `MODEL_NAME` (subject to verified access and billing). Credentials from `OPENAI_API_KEY` in environment or Streamlit secrets; `store=False`.
+- **OpenAI Python SDK + Responses API:** two structured calls per run, configurable by `MODEL_NAME` (subject to verified access and billing). Credentials from `OPENAI_API_KEY` in environment variables or Streamlit secrets; `store=False`.
 - **Python comparison logic:** grounding, match rules, findings — fully unit-tested.
 - **Session State:** current review only; no database.
 - **reportlab (dev only):** generates synthetic sample PDFs.
-- **GitHub + Streamlit Community Cloud:** source control and public deployment.
+- **GitHub + Render:** source control and public deployment.
 
 The detailed contracts, checks and failure behavior are in [architecture.md](architecture.md).
 
@@ -140,17 +140,17 @@ If time is short, cut visual polish and the call-2 summary paragraph first; keep
 
 ## 8. Acceptance criteria
 
-- [ ] Findings change when inputs change; outputs are not hardcoded or prerecorded.
-- [ ] Real structured LLM readings with exactly one reading per readable document.
-- [ ] Extracted issuer, tax year and amount are verified against document text; failures are flagged.
-- [ ] Issuer-name variants of the same institution match; different form types never match.
-- [ ] Missing and New findings are correct on both sample sets.
-- [ ] Wrong-year, non-tax and unreadable files are flagged, never silently matched or dropped.
-- [ ] Each Missing/New finding has a specific, editable client question.
-- [ ] Preparer can confirm, ask client or dismiss; decisions survive reruns and appear in exports.
-- [ ] Invalid CSV and API/output failures are visible and never replaced with fake results.
-- [ ] Tests run, app works on a public link, secrets are not in the repo.
-- [ ] Written submission and 5–10-minute walkthrough satisfy the brief.
+- [x] Findings change when inputs change; outputs are not hardcoded or prerecorded.
+- [x] Real structured LLM readings with exactly one reading per readable document.
+- [x] Extracted issuer, tax year and amount are verified against document text; failures are flagged.
+- [x] Issuer-name variants of the same institution match; different form types never match.
+- [x] Missing and New findings are correct on both sample sets.
+- [x] Wrong-year, non-tax and unreadable files are flagged, never silently matched or dropped.
+- [x] Each Missing/New finding has a specific, editable client question.
+- [x] Preparer can confirm, ask client or dismiss; decisions survive reruns and appear in exports.
+- [x] Invalid CSV and API/output failures are visible and never replaced with fake results.
+- [x] Tests run, app works on a public link, secrets are not in the repo.
+- [x] Written submission and 5–10-minute walkthrough satisfy the brief.
 
 ## 9. Case-study written submission (up to four pages)
 
@@ -165,35 +165,24 @@ If time is short, cut visual polish and the call-2 summary paragraph first; keep
 
 | Deliverable | Content | Important note |
 |---|---|---|
-| Live prototype URL | Public Streamlit app running real LLM calls | Must be verified, not assumed |
+| Live prototype URL | Public app running real LLM calls (Render) | Verified |
 | Source repository | Modules, synthetic samples and generator, `requirements.txt`, tests | No credentials or real documents in Git history |
 | `README.md` | What it does, users, input formats, setup/run commands, example inputs and expected outputs, architecture, limits, demo URL | Describes only completed functionality after build |
 | Written submission | Concise response to all brief prompts, max four pages | Observed vs assumed; implemented vs mocked vs deferred |
-| Video walkthrough | 5–10 minutes; target 6–7 | Must actually be recorded and shareable |
-
-### Walkthrough sequence (about 6–7 minutes)
-
-- **0:00–0:50:** The preparer's seasonal problem; the lease-comparison observation.
-- **0:50–1:30:** Why AI for reading and code for comparison; why not a chatbot or templates.
-- **1:30–3:30:** Run the standard sample: matched name variant, missing 1098, new 1099-NEC, drafted questions.
-- **3:30–4:30:** Difficult sample: wrong-year form, non-tax PDF, scanned PDF, invalid CSV.
-- **4:30–5:30:** Review statuses, edit a question, export checklist and client request list.
-- **5:30–6:40:** Architecture and checks, limits, next steps, what would invalidate the idea.
+| Video walkthrough | 5–10 minutes | Recorded |
 
 ## 11. What comes next — and what would invalidate the idea?
 
-**Next:** OCR or a document-AI service for scanned uploads; reading the prior-year list directly from last year's return or tax software; year-over-year amount variance flags with preparer-set thresholds; a per-firm issuer alias table learned from corrections; a multi-client queue ordered by deadlines; measuring reading accuracy, match precision and preparer time on CPA-labelled document sets.
+**Next:** OCR or a document-AI service for scanned uploads; importing last year's document list from the firm's tax software instead of a hand-made CSV; year-over-year amount variance flags with preparer-set thresholds; a per-firm issuer alias table learned from corrections; a multi-client queue ordered by deadlines; measuring reading accuracy, match precision and preparer time on CPA-labelled document sets.
 
 **What would invalidate it:** target firms already use a document platform that reliably flags missing documents; preparers spend little time on this step; reading or matching errors force full manual re-checks; or clients' uploads are mostly scanned images that require OCR beyond the MVP.
 
 ## 12. Factual references
 
-- MiraFlores product: https://miraflores.ai/product
 - IRS General Instructions for Forms W-2 and W-3: https://www.irs.gov/instructions/iw2w3
 - IRS Publication 1099 (General Instructions for Certain Information Returns): https://www.irs.gov/publications/p1099
 - SurePrep 1040SCAN version comparison (vendor material): https://corp.sureprep.com/wp-content/uploads/1040SCAN-Version-Comparison-Web.pdf
-- Streamlit deployment: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy
-- Streamlit secrets management: https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management
+- Render web service deployment: https://render.com/docs/your-first-deploy
 - OpenAI Structured Outputs: https://developers.openai.com/api/docs/guides/structured-outputs
 
-**Status:** Planning document, kept as the original plan. Verified build status (tests, live runs, deployment, video) is tracked in the README status table.
+**Status:** Original plan, updated where the build differs. Verified build status is tracked in the README status table.

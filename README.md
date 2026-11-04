@@ -1,9 +1,9 @@
 # TaxDocs Delta
 
 **AI-assisted year-over-year tax document check for CPA firms**  
-*MiraFlores AI — AI Engineer (Tax) case study prototype*
+*Case study prototype*
 
-> **Live demo:** _not yet deployed — URL will be added after the public Streamlit Cloud deployment is verified._  
+> **Live demo:** https://taxdocs-delta.onrender.com (hosted on Render's free tier: if the app has been idle, the first load takes about a minute while it wakes up).  
 > **Synthetic data only.** Do not upload real tax documents to the demo.
 
 ## Overview
@@ -18,7 +18,6 @@ This is **not** tax preparation, tax advice, data entry into tax software, amoun
 
 ## Who it is for
 
-- **Platform provider:** MiraFlores AI, which develops AI-driven tax and accounting workflows.
 - **Business customer:** CPA firms preparing individual returns for recurring clients.
 - **Primary user:** a tax preparer checking whether a client's document set is complete before preparing the return.
 - **End customer:** a taxpayer who may need to send a missing document or explain a new one.
@@ -142,9 +141,19 @@ python -m pytest -q
 
 Tests use a fake OpenAI client for both calls (no network). Observed result: **50 passed** on macOS with Python 3.12 (and in a Python 3.10 build sandbox with the same pinned packages).
 
+## Deployment (Render)
+
+The public demo runs as a Render web service connected to this GitHub repository (auto-deploys on push to `main`).
+
+- **Build command:** `pip install -r requirements.txt`
+- **Start command:** `streamlit run app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true`
+- **Environment variables:** `OPENAI_API_KEY`, `MODEL_NAME=gpt-5.2`, `REASONING_EFFORT=medium`, `PYTHON_VERSION=3.12.12`
+
+The API key lives only in Render's environment settings, never in the repository. The key's OpenAI project has a hard monthly spend limit.
+
 ## Configuration and failure behavior
 
-- `MODEL_NAME` default `gpt-5.2`; `REASONING_EFFORT` default `medium`, sent only when set (`none` allowed). _Live access to the default model on the project's API key: pending verification._
+- `MODEL_NAME` default `gpt-5.2`; `REASONING_EFFORT` default `medium`, sent only when set (`none` allowed). Verified live with `gpt-5.2` / `medium`.
 - One click = one attempt per call (`max_retries=0`, 240 s timeout). Authentication, permission, model-not-found, quota, rate-limit, timeout, connection, refusal and incomplete responses map to clear messages. The app **never** falls back to fabricated results.
 - No database or persistence; uploads live only in the Streamlit session.
 
@@ -163,10 +172,10 @@ scripts/check_api.py        dev: one live structured-output call
 scripts/run_sample.py       dev: headless live run of a bundled sample
 data/                       synthetic samples
 tests/                      pytest suite (fake OpenAI client)
-docs/                       architecture, roadmap, case study, walkthrough script
+docs/                       architecture and roadmap
 ```
 
-Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: [docs/roadmap.md](docs/roadmap.md) · written submission: [docs/case_study.md](docs/case_study.md) · video script: [docs/walkthrough_script.md](docs/walkthrough_script.md).
+Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: [docs/roadmap.md](docs/roadmap.md).
 
 ## Status
 
@@ -174,9 +183,10 @@ Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: 
 |---|---|
 | Input validation, call 1 + checks, comparison, call 2 + checks, review UI, exports | Implemented |
 | Pytest suite | 50 passed (fake client) |
-| Live run of both samples with a real model | _Pending — to be recorded here_ |
-| Public Streamlit Community Cloud deployment | _Pending_ |
-| Video walkthrough | _Pending (script in docs/walkthrough_script.md)_ |
+| Live run of both samples with a real model (`gpt-5.2`) | Done — `sample_client` 4 / 1 / 1 / 0 and `difficult_client` 4 / 2 / 2 / 3 as expected; the injected instruction was ignored; all extracted values passed the grounding check |
+| Invalid prior-year CSV | Blocked before any model call, with all three errors listed |
+| Public deployment | Live on Render: https://taxdocs-delta.onrender.com |
+| Video walkthrough | Recorded (link provided with the submission) |
 
 ## Safety, assumptions, and limitations
 
@@ -188,10 +198,9 @@ Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: 
 
 ## References
 
-- [MiraFlores AI product](https://miraflores.ai/product)
 - [IRS General Instructions for Forms W-2 and W-3](https://www.irs.gov/instructions/iw2w3)
 - [IRS Instructions for Forms 1099-INT and 1099-OID](https://www.irs.gov/instructions/i1099int)
 - [IRS Publication 1099, General Instructions for Certain Information Returns](https://www.irs.gov/publications/p1099)
 - [OpenAI GPT-5.2 model page](https://developers.openai.com/api/docs/models/gpt-5.2)
 - [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
-- [Streamlit Community Cloud deployment](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy)
+- [Render: deploy a web service](https://render.com/docs/your-first-deploy)
