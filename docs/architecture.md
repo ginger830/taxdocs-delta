@@ -278,6 +278,7 @@ These record implementation decisions made within the contracts above.
 - **Null values.** A supported form with no identifiable tax year or issuer is Needs Review (cannot be confirmed as current-year / identified).
 - **Call 2 input** contains finding ID, status, reason, form type, prior and current issuer, tax year and `needs_question` — no document text, filenames or amounts. Questions returned for findings that do not require one are ignored; invented IDs, duplicates or a missing/empty required question reject call 2. When no finding needs a question, call 2 is skipped.
 - **CSV:** form types are matched case-insensitively and normalized; columns beyond the six in §4 are ignored; an empty CSV is an error.
-- **Document IDs** follow upload order (bundled samples: filename order).
+- **Inputs are always uploaded.** The app has no built-in sample selector, so every run visibly starts from user-provided files; the synthetic samples in `data/` are uploaded like any other files. (`load_sample` remains for tests and `scripts/run_sample.py`.)
+- **Document IDs** follow upload order (headless runner and tests: filename order).
 - **Settings** are read from environment variables first, then Streamlit secrets. `REASONING_EFFORT` defaults to `medium`; an empty value omits the parameter. Client: `max_retries=0`, timeout 240 s.
 - **SDK:** `openai==3.42.1` (`client.responses.parse(..., text_format=...)`, `response.output_parsed`); refusals, `incomplete` status and schema-invalid output raise visible errors.

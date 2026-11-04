@@ -7,7 +7,6 @@ import streamlit as st
 from src.compare import compute_findings, finding_counts
 from src.documents import (
     input_fingerprint,
-    load_sample,
     prepare_documents,
     validate_prior_csv,
 )
@@ -24,12 +23,6 @@ from src.schemas import FindingStatus, ReviewerStatus
 
 st.set_page_config(page_title="TaxDocs Delta", layout="wide")
 
-SOURCES = {
-    "Sample: sample_client": ("sample_client", False),
-    "Sample: difficult_client": ("difficult_client", False),
-    "Sample: difficult_client with invalid prior-year CSV": ("difficult_client", True),
-    "Upload my own files": (None, False),
-}
 BADGE = {
     FindingStatus.MATCHED: ":green[**Matched**]",
     FindingStatus.MISSING: ":orange[**Missing**]",
@@ -57,7 +50,7 @@ def reset_results() -> None:
 st.title("TaxDocs Delta")
 st.caption("Year-over-year tax document check for CPA firms: what is matched, missing, new or needs review.")
 st.warning(
-    "**Synthetic documents only.** This public prototype is for the bundled synthetic samples. "
+    "**Synthetic documents only.** Use the synthetic sample files in the repository's `data/` folder. "
     "Do not upload real tax documents or any personal information."
 )
 
@@ -71,20 +64,12 @@ with col_a:
     prior_year = current_year - 1
     st.caption(f"Prior tax year: {prior_year}")
 with col_b:
-    source = st.radio("Input", list(SOURCES), index=0)
-
-sample_name, invalid_csv = SOURCES[source]
-csv_bytes: bytes | None = None
-files: list[tuple[str, bytes]] = []
-if sample_name:
-    csv_bytes, files = load_sample(sample_name, invalid_csv=invalid_csv)
-else:
     up_csv = st.file_uploader("Prior-year document list (CSV)", type=["csv"])
     up_pdfs = st.file_uploader("Current-year documents (1–15 PDFs, ≤ 5 MB each)", type=None,
                                accept_multiple_files=True)
-    if up_csv is not None:
-        csv_bytes = up_csv.getvalue()
-    files = [(f.name, f.getvalue()) for f in (up_pdfs or [])]
+
+csv_bytes: bytes | None = up_csv.getvalue() if up_csv is not None else None
+files: list[tuple[str, bytes]] = [(f.name, f.getvalue()) for f in (up_pdfs or [])]
 
 if csv_bytes is None or not files:
     st.info("Provide a prior-year CSV and at least one current-year PDF.")

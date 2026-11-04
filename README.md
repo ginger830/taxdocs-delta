@@ -27,7 +27,7 @@ The business value is a **hypothesis**, not a measured outcome. The prototype us
 
 ## Core workflow (as implemented)
 
-1. **Input** (`src/documents.py`): prior-year CSV + 1–15 current-year PDFs, or a bundled sample. Validation runs locally before any API call: CSV columns and rules, file count/type/size, text extraction with `pypdf`. PDFs with fewer than 50 extractable characters are **Unreadable** and never sent to the model. Per-document text is capped at 8,000 characters.
+1. **Input** (`src/documents.py`): the user uploads a prior-year CSV + 1–15 current-year PDFs (the synthetic samples in `data/` are uploaded the same way). Validation runs locally before any API call: CSV columns and rules, file count/type/size, text extraction with `pypdf`. PDFs with fewer than 50 extractable characters are **Unreadable** and never sent to the model. Per-document text is capped at 8,000 characters.
 2. **Read documents — LLM call 1** (`src/extractor.py`): one batch Responses API call (`client.responses.parse(..., text_format=DocumentBatch)`, `store=False`) for all readable documents. Document text is wrapped and labelled untrusted; instructions inside documents are ignored.
 3. **Verify — code** (`src/extractor.py`):
    - exactly one reading per readable document ID (duplicates, omissions or invented IDs reject the run);
@@ -83,7 +83,7 @@ Expected counts when the model ignores the injection: **4 Matched, 2 Missing (P4
 
 ### `upload_demo` (for the "Upload my own files" option)
 
-A third, unrelated synthetic client (Morgan L. Chen) that is **not** listed in the app's sample selector, so it can be uploaded by hand: `data/upload_demo/prior_year_documents.csv` plus the three PDFs in `data/upload_demo/current_year/`.
+A third, unrelated synthetic client (Morgan L. Chen): `data/upload_demo/prior_year_documents.csv` plus the three PDFs in `data/upload_demo/current_year/`.
 
 | Prior year 2024 | Current year 2025 upload | Expected finding |
 |---|---|---|
@@ -100,7 +100,7 @@ Model wording varies between runs; the expected **findings** above are stable be
 
 **Prior-year CSV** — columns `entry_id` (required, unique), `form_type` (required; `W-2`, `1099-INT`, `1099-DIV`, `1099-NEC`, `1099-MISC`, `1099-B`, `1099-K`, `1099-R`, `1098`, `1098-E`, `1098-T`), `issuer_name` (required), `tax_year` (required; must equal current year − 1), `key_amount` (optional, reference only), `notes` (optional). Maximum 30 rows; every error is listed; no row is silently dropped.
 
-**Current-year PDFs** — 1–15 files, `.pdf`, ≤ 5 MB each, text-based (no OCR). The app assigns IDs `D1…Dn` in upload order (bundled samples: filename order).
+**Current-year PDFs** — 1–15 files, `.pdf`, ≤ 5 MB each, text-based (no OCR). The app assigns IDs `D1…Dn` in upload order.
 
 ## Setup and run (macOS, Python 3.12)
 
@@ -130,7 +130,7 @@ python scripts/check_api.py        # one live Structured Outputs call with the c
 python -m streamlit run app.py     # open http://localhost:8501
 ```
 
-In the app: choose `Sample: sample_client` (default) → **Check Documents** → review each finding (status + question) → download the checklist CSV and client request list.
+In the app: upload `data/sample_client/prior_year_documents.csv` and the PDFs in `data/sample_client/current_year/` (from a clone, or downloaded from GitHub) → **Check Documents** → review each finding (status + question) → download the checklist CSV and client request list.
 
 Headless run of the live pipeline (prints readings, checks, findings and questions):
 
