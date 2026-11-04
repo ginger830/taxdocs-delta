@@ -65,9 +65,7 @@ def _new(path: Path) -> Canvas:
 def grid_form(path: Path, *, form: str, title: str, year: int, issuer: list[str], issuer_tin: str,
               issuer_tin_label: str, boxes: list[tuple[str, str]], recipient_label: str = "RECIPIENT'S",
               issuer_label: str = "PAYER'S", recipient_tin_label: str | None = None,
-              extra: list[str] | None = None, recipient: list[str] | None = None,
-              recipient_tin: str | None = None) -> None:
-    recipient, recipient_tin = recipient or RECIPIENT, recipient_tin or RECIPIENT_TIN
+              extra: list[str] | None = None) -> None:
     c = _new(path)
     _banner(c)
     top = H - 60
@@ -86,9 +84,9 @@ def grid_form(path: Path, *, form: str, title: str, year: int, issuer: list[str]
     for i, line in enumerate(issuer):
         c.drawString(48, y + 75 - i * 14, line)
     _box(c, 40, y - 40, 130, 40, f"{issuer_tin_label}", issuer_tin)
-    _box(c, 170, y - 40, 130, 40, recipient_tin_label or f"{recipient_label} TIN", recipient_tin)
+    _box(c, 170, y - 40, 130, 40, recipient_tin_label or f"{recipient_label} TIN", RECIPIENT_TIN)
     _box(c, 40, y - 130, 260, 90, f"{recipient_label} name, street address, city or town, state, and ZIP")
-    for i, line in enumerate(recipient):
+    for i, line in enumerate(RECIPIENT):
         c.drawString(48, y - 65 - i * 14, line)
 
     by = top - 50
@@ -106,9 +104,7 @@ def grid_form(path: Path, *, form: str, title: str, year: int, issuer: list[str]
 
 
 def bank_statement(path: Path, *, bank: str, address: list[str], year: int, form: str, title: str,
-                   payer_tin: str, account: str, rows: list[tuple[str, str]], stmt_date: str,
-                   recipient: list[str] | None = None, recipient_tin: str | None = None) -> None:
-    recipient, recipient_tin = recipient or RECIPIENT, recipient_tin or RECIPIENT_TIN
+                   payer_tin: str, account: str, rows: list[tuple[str, str]], stmt_date: str) -> None:
     c = _new(path)
     _banner(c)
     c.setFillColorRGB(0.05, 0.2, 0.45)
@@ -130,9 +126,9 @@ def bank_statement(path: Path, *, bank: str, address: list[str], year: int, form
 
     y = H - 220
     c.setFont("Helvetica", 10)
-    for i, line in enumerate(recipient):
-        c.drawString(320, H - 140 - i * 12, line)
-    c.drawString(320, H - 180, f"RECIPIENT'S TIN: {recipient_tin}")
+    for line in RECIPIENT:
+        c.drawString(320, H - 140 - RECIPIENT.index(line) * 12, line)
+    c.drawString(320, H - 180, f"RECIPIENT'S TIN: {RECIPIENT_TIN}")
     c.drawString(320, H - 194, f"Account number: {account}")
 
     c.setFont("Helvetica-Bold", 13)
@@ -163,9 +159,7 @@ def bank_statement(path: Path, *, bank: str, address: list[str], year: int, form
 
 def brokerage_composite(path: Path, *, firm: str, address: list[str], year: int, form: str, title: str,
                         payer_tin: str, account: str, rows: list[tuple[str, str]],
-                        notice: list[str] | None = None, recipient: list[str] | None = None,
-                        recipient_tin: str | None = None) -> None:
-    recipient, recipient_tin = recipient or RECIPIENT, recipient_tin or RECIPIENT_TIN
+                        notice: list[str] | None = None) -> None:
     c = _new(path)
     _banner(c)
     c.setFont("Times-Bold", 18)
@@ -182,9 +176,9 @@ def brokerage_composite(path: Path, *, firm: str, address: list[str], year: int,
     c.setFont("Times-Roman", 10)
     y = H - 150
     c.drawString(50, y, "Recipient:")
-    for i, line in enumerate(recipient):
+    for i, line in enumerate(RECIPIENT):
         c.drawString(110, y - i * 12, line)
-    c.drawString(110, y - 36, f"Recipient's identification number: {recipient_tin}")
+    c.drawString(110, y - 36, f"Recipient's identification number: {RECIPIENT_TIN}")
 
     y = H - 230
     c.setFillColorRGB(0.9, 0.9, 0.9)
@@ -372,47 +366,6 @@ def difficult_documents(folder: Path) -> None:
     )
 
 
-UPLOAD_RECIPIENT = ["Morgan L. Chen", "48 Sample Court", "Madison, WI 53703"]
-UPLOAD_TIN = "XXX-XX-5678"
-UPLOAD_PRIOR_CSV = """entry_id,form_type,issuer_name,tax_year,key_amount,notes
-U1,W-2,Northwind Health Partners,2024,72300.00,
-U2,1099-INT,Capital One,2024,128.40,360 Performance Savings
-U3,1098-E,Nelnet,2024,1840.00,Student loan interest
-"""
-
-
-def upload_demo_documents(folder: Path) -> None:
-    """A third, unrelated client for demonstrating 'Upload my own files' (not wired into the app)."""
-    who = dict(recipient=UPLOAD_RECIPIENT, recipient_tin=UPLOAD_TIN)
-    grid_form(
-        folder / "chen_w2_2025.pdf", form="W-2", title="Wage and Tax Statement", year=2025,
-        issuer=["Northwind Health Partners, Inc.", "900 University Ave", "Madison, WI 53706"],
-        issuer_tin="XX-XXX3018", issuer_tin_label="b Employer identification number (EIN)",
-        issuer_label="c Employer's", recipient_label="e Employee's",
-        recipient_tin_label="a Employee's social security number",
-        boxes=[("1 Wages, tips, other compensation", "74,910.00"),
-               ("2 Federal income tax withheld", "8,102.00"),
-               ("3 Social security wages", "74,910.00"),
-               ("4 Social security tax withheld", "4,644.42")],
-        extra=["Department of the Treasury—Internal Revenue Service"], **who,
-    )
-    bank_statement(
-        folder / "capitalone_tax_form.pdf", bank="Capital One, N.A.",
-        address=["Capital One, N.A.", "P.O. Box 85015", "Richmond, VA 23285"], year=2025,
-        form="1099-INT", title="Interest Income", payer_tin="XX-XXX4402", account="XXXXXX8851",
-        stmt_date="January 28, 2026",
-        rows=[("1 Interest income", "$141.06"), ("2 Early withdrawal penalty", "$0.00"),
-              ("4 Federal income tax withheld", "$0.00")], **who,
-    )
-    brokerage_composite(
-        folder / "fidelity_1099div_2025.pdf", firm="Fidelity Investments",
-        address=["P.O. Box 770001", "Cincinnati, OH 45277"], year=2025, form="1099-DIV",
-        title="Dividends and Distributions", payer_tin="XX-XXX9921", account="XXXX-1187",
-        rows=[("1a Total ordinary dividends", "263.75"), ("1b Qualified dividends", "240.10"),
-              ("4 Federal income tax withheld", "0.00")], **who,
-    )
-
-
 def main() -> None:
     sample = DATA / "sample_client"
     difficult = DATA / "difficult_client"
@@ -425,13 +378,7 @@ def main() -> None:
     (difficult / "prior_year_documents.csv").write_text(DIFFICULT_PRIOR_CSV)
     (difficult / "prior_year_documents_invalid.csv").write_text(INVALID_PRIOR_CSV)
     difficult_documents(difficult / "current_year")
-    upload = DATA / "upload_demo"
-    (upload / "current_year").mkdir(parents=True, exist_ok=True)
-    for old in (upload / "current_year").glob("*.pdf"):
-        old.unlink()
-    (upload / "prior_year_documents.csv").write_text(UPLOAD_PRIOR_CSV)
-    upload_demo_documents(upload / "current_year")
-    for folder in (sample, difficult, upload):
+    for folder in (sample, difficult):
         names = sorted(p.name for p in (folder / "current_year").glob("*.pdf"))
         print(f"{folder.relative_to(ROOT)}: {len(names)} PDFs -> {', '.join(names)}")
 

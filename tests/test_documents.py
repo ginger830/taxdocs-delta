@@ -92,12 +92,3 @@ def test_text_is_capped(monkeypatch):
     monkeypatch.setattr(documents, "extract_pdf_text", lambda data: "x" * 20000)
     doc = prepare_documents([("long.pdf", b"%PDF")])[0][0]
     assert doc.readable and doc.truncated and len(doc.text) == documents.MAX_TEXT_CHARS
-
-
-def test_upload_demo_files_are_valid_inputs():
-    folder = documents.DATA_DIR / "upload_demo"
-    entries, errors = validate_prior_csv((folder / "prior_year_documents.csv").read_bytes(), 2024)
-    assert errors == [] and [e.entry_id for e in entries] == ["U1", "U2", "U3"]
-    files = [(p.name, p.read_bytes()) for p in sorted((folder / "current_year").glob("*.pdf"))]
-    docs, errors = prepare_documents(files)
-    assert errors == [] and len(docs) == 3 and all(d.readable for d in docs)

@@ -81,19 +81,6 @@ Expected counts when the model ignores the injection: **4 Matched, 2 Missing (P4
 
 `data/difficult_client/prior_year_documents_invalid.csv` fails before any model call with three listed errors: duplicate `entry_id` P2, unknown form type `K-1`, and tax year 2023 ≠ 2024.
 
-### `upload_demo` (for the "Upload my own files" option)
-
-A third, unrelated synthetic client (Morgan L. Chen): `data/upload_demo/prior_year_documents.csv` plus the three PDFs in `data/upload_demo/current_year/`.
-
-| Prior year 2024 | Current year 2025 upload | Expected finding |
-|---|---|---|
-| U1 W-2, Northwind Health Partners | `chen_w2_2025.pdf` — "Northwind Health Partners, Inc." | Matched (name variant) |
-| U2 1099-INT, Capital One | `capitalone_tax_form.pdf` — "Capital One, N.A." | Matched (name variant) |
-| U3 1098-E, Nelnet | — | **Missing** → client question |
-| — | `fidelity_1099div_2025.pdf` — 1099-DIV, Fidelity Investments | **New** → client question |
-
-Expected counts: **2 Matched, 1 Missing, 1 New, 0 Needs Review.**
-
 Model wording varies between runs; the expected **findings** above are stable because they are computed by code.
 
 ## Input formats
@@ -153,7 +140,7 @@ python scripts/make_samples.py
 python -m pytest -q
 ```
 
-Tests use a fake OpenAI client for both calls (no network). Observed result: **51 passed** (Python 3.10 build sandbox, same pinned packages). On macOS Python 3.12 the suite passed (50/50) before the upload-demo test was added; _re-run of the current 51: pending._
+Tests use a fake OpenAI client for both calls (no network). Observed result: **50 passed** on macOS with Python 3.12 (and in a Python 3.10 build sandbox with the same pinned packages).
 
 ## Configuration and failure behavior
 
@@ -186,7 +173,7 @@ Design details: [docs/architecture.md](docs/architecture.md) · scope and plan: 
 | Item | Status |
 |---|---|
 | Input validation, call 1 + checks, comparison, call 2 + checks, review UI, exports | Implemented |
-| Pytest suite | 51 passed (fake client) |
+| Pytest suite | 50 passed (fake client) |
 | Live run of both samples with a real model | _Pending — to be recorded here_ |
 | Public Streamlit Community Cloud deployment | _Pending_ |
 | Video walkthrough | _Pending (script in docs/walkthrough_script.md)_ |

@@ -1,4 +1,4 @@
-# TaxDocs Delta — Video Walkthrough Script (target 7–8 min, max 10)
+# TaxDocs Delta — Video Walkthrough Script (target 7 min, max 10)
 
 **Recording status:** not recorded yet. **[Author: add the video URL after recording.]**
 
@@ -37,23 +37,16 @@
 3. Show the client request list preview: only Ask Client items, with the edited text.
 4. Download the checklist CSV and open it: computed finding, reason, AI question, final question and reviewer status side by side.
 
-### (optional, ~30 s) · A third client
-
-1. Remove the uploaded files; upload `data/upload_demo/prior_year_documents.csv` and the three PDFs in `data/upload_demo/current_year/`.
-2. Show the validated tables (new client, entry IDs U1–U3), click **Check Documents**.
-3. (Changing the inputs resets the previous review, so do this after the export.) Point only at the counts — 2 Matched, 1 Missing (1098-E Nelnet), 1 New (1099-DIV Fidelity):
-   > "A different client, same pipeline, and nothing is hardcoded."
-
-### 5:15–6:15 · How it works: architecture, limits, next steps
+### 4:45–5:45 · How it works: architecture, limits, next steps
 
 > "The comparison itself is simple once documents are in a common structure. The hard part is getting there: every issuer has its own layout, and the same bank shows up as 'Chase' last year and 'JPMorgan Chase Bank, N.A.' this year. So AI reads the documents and drafts questions; code verifies and decides; the preparer approves. A general chatbot doesn't have the firm's prior-year list or consistent matching rules, and template scanners need a template per layout."
 
-1. Show the module list in the README: documents → extractor → compare → questions → review; `app.py` is UI only; 51 tests with a fake model client.
+1. Show the module list in the README: documents → extractor → compare → questions → review; `app.py` is UI only; 50 tests with a fake model client.
 2. Limits: synthetic data, text PDFs only, no amount comparison, a passed check isn't proof — the preparer reviews everything.
 3. Next: read the prior-year list from last year's return, amount-variance flags, a firm alias table from corrections, OCR, multi-client queue.
 4. What would stop me: firms already have reliable missing-document detection, preparers spend little time here, errors force full re-checks, or most uploads are scans.
 
-### 6:15–7:30 · Why I built it and how it addresses the problem
+### 5:45–7:00 · Why I built it and how it addresses the problem
 
 > "So there are two things that inspired me to develop this solution.
 >
